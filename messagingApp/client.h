@@ -11,6 +11,7 @@ public:
 	Client(PCSTR serverAddr, PCSTR serverPort) : _serverAddr(serverAddr), _serverPort(serverPort), _socket(INVALID_SOCKET) {}
 	~Client(void) { closesocket(_socket); }
 	int createSocket(void);
+	int sendMsg(const char* msg);
 
 private:
 	PCSTR _serverAddr;

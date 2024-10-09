@@ -33,6 +33,7 @@ int Client::createSocket(void) {
 		std::cout << "Client socket error" << std::endl;
 		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
 		closesocket(_socket);
+		_socket = INVALID_SOCKET;
 		return -1;
 	}
 
@@ -43,6 +44,25 @@ int Client::createSocket(void) {
 
 	freeaddrinfo(addrResult);
 	std::cout << "Client socket initialised successfully\n" << std::endl;
+
+	return 0;
+}
+
+int Client::sendMsg(const char* msg) {
+
+	if (_socket == INVALID_SOCKET) {
+		std::cout << "Failed to send the message" << std::endl;
+		std::cout << "Client is not connected to the server\n" << std::endl;
+		return 1;
+	}
+
+	int wsaResult = send(_socket, msg, (int)strlen(msg), 0);
+	if (wsaResult != 0) {
+		std::cout << "Failed to send the message" << std::endl;
+		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
+	}
+
+	std::cout << "Message sent\n" << std::endl;
 
 	return 0;
 }

@@ -3,6 +3,10 @@
 
 #include <iostream>
 
+Server::Server(PCSTR port, int bufLen) : _port(port), _bufLen(bufLen) {
+	_recvBuf = new char[bufLen];
+}
+
 int Server::createSocket(void) {
 	std::cout << "Initialising Server Socket" << std::endl;
 
@@ -57,16 +61,44 @@ int Server::startListen(void) {
 }
 
 int Server::acceptConnection(void) {
-	SOCKET clientSocket = INVALID_SOCKET;
-
-	clientSocket = accept(_socket, nullptr, nullptr);
+	_clientSocket = accept(_socket, nullptr, nullptr);
 	std::cout << "Accepting connection..." << std::endl;
-	if (clientSocket == INVALID_SOCKET) {
+	if (_clientSocket == INVALID_SOCKET) {
 		std::cout << "Connention accept failed" << std::endl;
 		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
-		return INVALID_SOCKET;
+		return -1;
+	}
+	std::cout << "Connection accepted\n" << std::endl;
+	return 0;
+}
+
+int Server::reveiveMsg(void) {
+
+	if (_clientSocket == INVALID_SOCKET) {
+		std::cout << "Failed to receive message" << std::endl;
+		std::cout << "No client connected\n" << std::endl;
+		return -1;
 	}
 
-	std::cout << "Connection accepted\n" << std::endl;
-	return clientSocket;
+	int wsaResult;
+
+	do {
+
+		wsaResult = recv(_clientSocket, _recvBuf, _bufLen, 0);
+		if (wsaResult > 0) {
+			std::cout << "Received " << wsaResult << "bytes" << std::endl;
+		}
+		else if (wsaResult == 0) {
+			std::cout << "Closing connection...\n" << std::endl;
+		}
+		else {
+			std::cout << "Failed to receive message" << std::endl;
+			std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
+			closesocket(_clientSocket);
+			_clientSocket = INVALID_SOCKET;
+			return -1;
+		}
+
+	} while (wsaResult > 0);
+	return 0;
 }
