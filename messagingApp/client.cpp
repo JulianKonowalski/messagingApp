@@ -1,11 +1,12 @@
 #include "client.h"
-#include "wsaInit.h"
 
 #include <iostream>
 
-int Client::createSocket(void) {
+int Client::createSocket(PCSTR serverAddr, PCSTR serverPort) {
 	std::cout << "Initialising Client Socket" << std::endl;
 
+	_serverAddr = serverAddr;
+	_serverPort = serverPort;
 	struct addrinfo* addrResult = nullptr, info;
 
 	ZeroMemory(&info, sizeof(info));

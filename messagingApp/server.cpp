@@ -1,15 +1,21 @@
 #include "server.h"
-#include "wsaInit.h"
 
 #include <iostream>
 
-Server::Server(PCSTR port, int bufLen) : _port(port), _bufLen(bufLen) {
-	_recvBuf = new char[bufLen];
+#define DEFAULT_BUF_LEN 512
+
+Server::Server(void) : _port(NULL), _bufLen(DEFAULT_BUF_LEN) {
+	_recvBuf = new char[_bufLen];
 }
 
-int Server::createSocket(void) {
+Server::Server(int bufLen) : _port(NULL), _bufLen(bufLen) {
+	_recvBuf = new char[_bufLen];
+}
+
+int Server::createSocket(PCSTR port) {
 	std::cout << "Initialising Server Socket" << std::endl;
 
+	_port = port;
 	struct addrinfo* addrResult = nullptr, info;
 
 	ZeroMemory(&info, sizeof(info));
@@ -60,7 +66,7 @@ int Server::startListen(void) {
 	return 0;
 }
 
-int Server::acceptConnection(void) {
+int Server::connect (void) {
 	_clientSocket = accept(_socket, nullptr, nullptr);
 	std::cout << "Accepting connection..." << std::endl;
 	if (_clientSocket == INVALID_SOCKET) {
@@ -72,7 +78,7 @@ int Server::acceptConnection(void) {
 	return 0;
 }
 
-int Server::reveiveMsg(void) {
+int Server::receiveMsg(void) {
 
 	if (_clientSocket == INVALID_SOCKET) {
 		std::cout << "Failed to receive message" << std::endl;

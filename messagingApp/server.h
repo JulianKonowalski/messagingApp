@@ -6,15 +6,15 @@
 
 #pragma comment(lib,"WS2_32")
 
-
 class Server {
 public:
-	Server(PCSTR port, int bufLen);
+	Server(void);
+	Server(int bufLen);
 	~Server(void) { closesocket(_socket); }
-	int createSocket(void);
+	int createSocket(PCSTR port);
 	int startListen(void);
-	int acceptConnection(void);
-	int reveiveMsg(void);
+	int connect(void);
+	int receiveMsg(void);
 
 private:
 	PCSTR _port;

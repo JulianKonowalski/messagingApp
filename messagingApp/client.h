@@ -8,9 +8,9 @@
 
 class Client {
 public:
-	Client(PCSTR serverAddr, PCSTR serverPort) : _serverAddr(serverAddr), _serverPort(serverPort), _socket(INVALID_SOCKET) {}
+	Client(void) : _serverAddr(NULL), _serverPort(NULL), _socket(INVALID_SOCKET) {}
 	~Client(void) { closesocket(_socket); }
-	int createSocket(void);
+	int createSocket(PCSTR serverAddr, PCSTR serverPort);
 	int sendMsg(const char* msg);
 
 private:
