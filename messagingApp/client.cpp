@@ -3,8 +3,6 @@
 #include <iostream>
 
 int Client::createSocket(PCSTR serverAddr, PCSTR serverPort) {
-	std::cout << "Initialising Client Socket" << std::endl;
-
 	_serverAddr = serverAddr;
 	_serverPort = serverPort;
 	struct addrinfo* addrResult = nullptr, info;
@@ -44,7 +42,6 @@ int Client::createSocket(PCSTR serverAddr, PCSTR serverPort) {
 	}
 
 	freeaddrinfo(addrResult);
-	std::cout << "Client socket initialised successfully\n" << std::endl;
 
 	return 0;
 }
@@ -54,16 +51,15 @@ int Client::sendMsg(const char* msg) {
 	if (_socket == INVALID_SOCKET) {
 		std::cout << "Failed to send the message" << std::endl;
 		std::cout << "Client is not connected to the server\n" << std::endl;
-		return 1;
+		return -1;
 	}
 
 	int wsaResult = send(_socket, msg, (int)strlen(msg), 0);
 	if (wsaResult != 0) {
 		std::cout << "Failed to send the message" << std::endl;
 		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
+		return -1;
 	}
-
-	std::cout << "Message sent\n" << std::endl;
 
 	return 0;
 }

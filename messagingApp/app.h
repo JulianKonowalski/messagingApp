@@ -20,11 +20,13 @@ public:
 	void run(void);
 
 private:
-	int setupWsa(void);
+	void setupWsa(void);
 	void connect(void);
-	void awaitConnection(bool* connected, std::mutex* connectedMutex);
-	void connectWithServer(bool* connected, std::mutex* connectedMutex);
-	std::string getServerAddr(void);
+	void awaitConnection(void);
+	void connectWithServer(void);
+	void chatRoom(void);
+
+	int getUserChoice(void);
 
 	Server _server;
 	Client _client;
