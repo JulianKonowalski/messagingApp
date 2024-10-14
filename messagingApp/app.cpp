@@ -6,8 +6,9 @@
 #include "wsaInit.h"
 
 #define DEFAULT_SERVER_PORT "8080"
-#define HOST_ROOM 1
-#define JOIN_ROOM 2
+
+enum userType {HOST, CLIENT};
+enum userAction {HOST_ROOM, JOIN_ROOM};
 
 void App::run(void) {
 	try {
@@ -85,13 +86,50 @@ void App::printMessages(void) {
 }
 
 void App::receiveMessages(void) {
+	switch (_userType) {
+	case HOST:
+		receiveAsHost();
+		break;
+	case CLIENT:
+		receiveAsClient();
+		break;
+	}
+}
+
+void App::receiveAsHost(void) {
 	while (true) {
-		//recv
-		//updateBuffer
+		std::string* message = new std::string(_server.receiveMsg());
+		_buffer.addMsg(message);
+	}
+}
+
+void App::receiveAsClient(void) {
+	while (true) {
+		std::string* message = new std::string(_client.receiveMsg());
+		_buffer.addMsg(message);
 	}
 }
 
 void App::sendMessages(void) {
+	switch (_userType) {
+	case HOST:
+		sendAsHost();
+		break;
+	case CLIENT:
+		sendAsClient();
+		break;
+	}
+}
+
+void App::sendAsHost(void) {
+	while (true) {
+		std::string* message = new std::string(getMessage());
+		_buffer.addMsg(message);
+		_server.sendMsg(message->c_str());
+	}
+}
+
+void App::sendAsClient(void) {
 	while (true) {
 		std::string* message = new std::string(getMessage());
 		_buffer.addMsg(message);
@@ -101,7 +139,9 @@ void App::sendMessages(void) {
 
 std::string App::getMessage(void) {
 	std::string message;
-	std::getline(std::cin, message);
+	do {
+		std::getline(std::cin, message);
+	} while (message == "" || message == "\n");
 	return message;
 }
 
@@ -114,7 +154,9 @@ int App::getUserChoice(void) {
 		system("cls");
 	} while (choice != "host" && choice != "join");
 	if (choice == "host") {
+		_userType = HOST;
 		return HOST_ROOM;
 	}
+	_userType = CLIENT;
 	return JOIN_ROOM;
 }

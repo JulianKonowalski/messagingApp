@@ -1,6 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <iostream>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 
@@ -8,10 +9,12 @@
 
 class Client {
 public:
-	Client(void) : _serverAddr(NULL), _serverPort(NULL), _socket(INVALID_SOCKET) {}
+	Client(void);
 	~Client(void) { closesocket(_socket); }
 	int createSocket(PCSTR serverAddr, PCSTR serverPort);
 	int sendMsg(const char* msg);
+
+	std::string receiveMsg(void);
 
 	SOCKET getSocket(void) { return _socket; }
 
@@ -19,6 +22,8 @@ private:
 	PCSTR _serverAddr;
 	PCSTR _serverPort;
 	SOCKET _socket;
+	const int _bufLen;
+	char* _recvBuf = nullptr;
 };
 
 #endif

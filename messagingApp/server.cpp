@@ -1,14 +1,8 @@
 #include "server.h"
 
-#include <iostream>
-
-#define DEFAULT_BUF_LEN 512
+#define DEFAULT_BUF_LEN 128
 
 Server::Server(void) : _port(NULL), _bufLen(DEFAULT_BUF_LEN) {
-	_recvBuf = new char[_bufLen];
-}
-
-Server::Server(int bufLen) : _port(NULL), _bufLen(bufLen) {
 	_recvBuf = new char[_bufLen];
 }
 
@@ -72,33 +66,58 @@ int Server::connect (void) {
 	return 0;
 }
 
-int Server::receiveMsg(void) {
+int Server::sendMsg(const char* msg) {
+
+	if (_clientSocket == INVALID_SOCKET) {
+		std::cout << "Failed to send the message" << std::endl;
+		std::cout << "Server is not connected to the client\n" << std::endl;
+		return -1;
+	}
+
+	int msgLen = (int)strlen(msg) + 1; //+1 is for the \0 ending byte
+	int wsaResult = send(_clientSocket, (char*)&msgLen, sizeof(int), 0); //send msg size before sending the message
+	if (wsaResult == SOCKET_ERROR) {
+		std::cout << "Failed to send the message" << std::endl;
+		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
+		return -1;
+	}
+
+	wsaResult = send(_clientSocket, msg, msgLen, 0); //send msg
+	if (wsaResult == SOCKET_ERROR) {
+		std::cout << "Failed to send the message" << std::endl;
+		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
+		return -1;
+	}
+
+	return 0;
+}
+
+std::string Server::receiveMsg(void) {
 
 	if (_clientSocket == INVALID_SOCKET) {
 		std::cout << "Failed to receive message" << std::endl;
 		std::cout << "No client connected\n" << std::endl;
-		return -1;
+		return std::string("");
 	}
 
-	int wsaResult;
+	int msgSize;
+	int wsaResult = recv(_clientSocket, (char*)&msgSize, sizeof(int), 0); //receive message size before the message
+	if (wsaResult < 0) {
+		std::cout << "Failed to receive message" << std::endl;
+		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
+		closesocket(_clientSocket);
+		_clientSocket = INVALID_SOCKET;
+		return std::string("");
+	}
 
-	do {
+	wsaResult = recv(_clientSocket, _recvBuf, _bufLen, 0); //receive message
+	if (wsaResult < 0) {
+		std::cout << "Failed to receive message" << std::endl;
+		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
+		closesocket(_clientSocket);
+		_clientSocket = INVALID_SOCKET;
+		return std::string("");
+	}
 
-		wsaResult = recv(_clientSocket, _recvBuf, _bufLen, 0);
-		if (wsaResult > 0) {
-			std::cout << "Received " << wsaResult << "bytes" << std::endl;
-		}
-		else if (wsaResult == 0) {
-			std::cout << "Closing connection...\n" << std::endl;
-		}
-		else {
-			std::cout << "Failed to receive message" << std::endl;
-			std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
-			closesocket(_clientSocket);
-			_clientSocket = INVALID_SOCKET;
-			return -1;
-		}
-
-	} while (wsaResult > 0);
-	return 0;
+	return std::string(_recvBuf);
 }

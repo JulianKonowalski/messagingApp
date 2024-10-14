@@ -3,18 +3,20 @@
 
 #include <WinSock2.h>
 #include <WS2tcpip.h>
+#include <iostream>
 
 #pragma comment(lib,"WS2_32")
 
 class Server {
 public:
 	Server(void);
-	Server(int bufLen);
 	~Server(void) { closesocket(_socket); }
 	int createSocket(PCSTR port);
 	int startListen(void);
 	int connect(void);
-	int receiveMsg(void);
+
+	int sendMsg(const char* msg);
+	std::string receiveMsg(void);
 
 	SOCKET getSocket(void) { return _socket; }
 

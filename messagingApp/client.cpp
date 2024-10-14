@@ -1,6 +1,10 @@
 #include "client.h"
 
-#include <iostream>
+#define DEFAULT_BUF_LEN 128
+
+Client::Client(void) : _serverAddr(NULL), _serverPort(NULL), _socket(INVALID_SOCKET), _bufLen(DEFAULT_BUF_LEN) {
+	_recvBuf = new char[_bufLen];
+}
 
 int Client::createSocket(PCSTR serverAddr, PCSTR serverPort) {
 	_serverAddr = serverAddr;
@@ -54,12 +58,51 @@ int Client::sendMsg(const char* msg) {
 		return -1;
 	}
 
-	int wsaResult = send(_socket, msg, (int)strlen(msg), 0);
-	if (wsaResult != 0) {
+	int msgLen = (int)strlen(msg) + 1; //+1 is for the \0 ending byte
+	int wsaResult = send(_socket, (char*)&msgLen, sizeof(int), 0); //send msg size before sending the message
+	if (wsaResult == SOCKET_ERROR) {
+		std::cout << "Failed to send the message" << std::endl;
+		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
+		return -1;
+	}
+
+	wsaResult = send(_socket, msg, msgLen, 0); //send msg
+	if (wsaResult == SOCKET_ERROR) {
 		std::cout << "Failed to send the message" << std::endl;
 		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
 		return -1;
 	}
 
 	return 0;
+}
+
+std::string Client::receiveMsg(void) {
+
+	if (_socket == INVALID_SOCKET) {
+		std::cout << "Failed to receive message" << std::endl;
+		std::cout << "No server connected\n" << std::endl;
+		return std::string("");
+	}
+
+	int msgSize;
+	int wsaResult = recv(_socket, (char*)&msgSize, sizeof(int), 0); //receive message size before the message
+	if (wsaResult < 0) {
+		std::cout << "Failed to receive message" << std::endl;
+		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
+		closesocket(_socket);
+		_socket = INVALID_SOCKET;
+		return std::string("");
+	}
+
+	wsaResult = recv(_socket, _recvBuf, _bufLen, 0); //receive message
+	if (wsaResult < 0) {
+		std::cout << "Failed to receive message" << std::endl;
+		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
+		closesocket(_socket);
+		_socket = INVALID_SOCKET;
+		return std::string("");
+	}
+
+	return std::string(_recvBuf);
+
 }

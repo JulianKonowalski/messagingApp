@@ -29,7 +29,11 @@ private:
 	void chatRoom(void);
 	void printMessages(void);
 	void receiveMessages(void);
+	void receiveAsHost(void);
+	void receiveAsClient(void);
 	void sendMessages(void);
+	void sendAsHost(void);
+	void sendAsClient(void);
 
 	std::string getMessage(void);
 
@@ -38,6 +42,7 @@ private:
 	Server _server;
 	Client _client;
 	MsgBuffer _buffer;
+	int _userType;
 };
 
 #endif
