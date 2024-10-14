@@ -8,6 +8,7 @@
 
 #include "client.h"
 #include "server.h"
+#include "msgBuffer.h"
 
 #pragma comment(lib,"WS2_32")
 
@@ -21,15 +22,22 @@ public:
 
 private:
 	void setupWsa(void);
+	void welcomeMessage(void);
 	void connect(void);
-	void awaitConnection(void);
+	void connectWithClient(void);
 	void connectWithServer(void);
 	void chatRoom(void);
+	void printMessages(void);
+	void receiveMessages(void);
+	void sendMessages(void);
+
+	std::string getMessage(void);
 
 	int getUserChoice(void);
 
 	Server _server;
 	Client _client;
+	MsgBuffer _buffer;
 };
 
 #endif

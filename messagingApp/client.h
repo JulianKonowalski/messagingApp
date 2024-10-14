@@ -13,6 +13,8 @@ public:
 	int createSocket(PCSTR serverAddr, PCSTR serverPort);
 	int sendMsg(const char* msg);
 
+	SOCKET getSocket(void) { return _socket; }
+
 private:
 	PCSTR _serverAddr;
 	PCSTR _serverPort;

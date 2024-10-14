@@ -13,7 +13,6 @@ Server::Server(int bufLen) : _port(NULL), _bufLen(bufLen) {
 }
 
 int Server::createSocket(PCSTR port) {
-	std::cout << "Initialising Server Socket" << std::endl;
 
 	_port = port;
 	struct addrinfo* addrResult = nullptr, info;
@@ -50,31 +49,26 @@ int Server::createSocket(PCSTR port) {
 	}
 
 	freeaddrinfo(addrResult);
-	std::cout << "Server socket initialised successfully\n" << std::endl;
 
 	return 0;
 }
 
 int Server::startListen(void) {
-	std::cout << "Initialising listening" << std::endl;
 	if (listen(_socket, SOMAXCONN) == SOCKET_ERROR) {
 		std::cout << "Listen failed" << std::endl;
 		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
 		return -1;
 	}
-	std::cout << "Listening...\n" << std::endl;
 	return 0;
 }
 
 int Server::connect (void) {
 	_clientSocket = accept(_socket, nullptr, nullptr);
-	std::cout << "Accepting connection..." << std::endl;
 	if (_clientSocket == INVALID_SOCKET) {
 		std::cout << "Connention accept failed" << std::endl;
 		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
 		return -1;
 	}
-	std::cout << "Connection accepted\n" << std::endl;
 	return 0;
 }
 

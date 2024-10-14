@@ -16,6 +16,8 @@ public:
 	int connect(void);
 	int receiveMsg(void);
 
+	SOCKET getSocket(void) { return _socket; }
+
 private:
 	PCSTR _port;
 	SOCKET _socket = INVALID_SOCKET;
