@@ -9,6 +9,7 @@
 
 class MsgBuffer {
 public:
+	~MsgBuffer(void);
 	void addMsg(std::string* message);
 	std::mutex* getMutex(void) { return &_mutex; }
 	std::condition_variable* getCv(void) { return &_notification; }

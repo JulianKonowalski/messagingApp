@@ -131,14 +131,15 @@
     <ClCompile Include="client.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="msgBuffer.cpp" />
-    <ClCompile Include="server.cpp" />
-    <ClCompile Include="wsaInit.cpp" />
+    <ClCompile Include="host.cpp" />
+    <ClCompile Include="user.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />
     <ClInclude Include="client.h" />
     <ClInclude Include="msgBuffer.h" />
-    <ClInclude Include="server.h" />
+    <ClInclude Include="host.h" />
+    <ClInclude Include="user.h" />
     <ClInclude Include="wsaInit.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

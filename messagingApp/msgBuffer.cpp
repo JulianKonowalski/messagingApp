@@ -1,5 +1,12 @@
 #include "msgBuffer.h"
 
+MsgBuffer::~MsgBuffer(void) {
+	while (_messages.size() != 0) {
+		delete _messages.back();
+		_messages.pop_back();
+	}
+}
+
 void MsgBuffer::addMsg(std::string* message) {
 	_mutex.lock();
 	if (_messages.size() >= MAX_MESSAGES) {

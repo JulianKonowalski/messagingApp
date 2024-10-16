@@ -4,15 +4,16 @@
 #include <condition_variable>
 
 #include "wsaInit.h"
+#include "host.h"
+#include "user.h"
 
 #define DEFAULT_SERVER_PORT "8080"
 
-enum userType {HOST, CLIENT};
 enum userAction {HOST_ROOM, JOIN_ROOM};
 
 void App::run(void) {
 	try {
-		setupWsa();
+		initialiseWSA(MAKEWORD(2, 2));
 		welcomeMessage();
 		connect();
 		chatRoom();
@@ -22,44 +23,44 @@ void App::run(void) {
 	}
 }
 
-void App::setupWsa(void) {
-	if (initialiseWSA(MAKEWORD(2, 2)) != 0) { 
-		throw std::runtime_error("Failed to initialise WSA");
-	}
-}
-
 void App::welcomeMessage(void) {
-	std::cout << "This is a welcome message!" << std::endl << std::flush;
+	std::cout << "Welcome to Messaging App!" << std::endl << std::flush;
 }
 
 void App::connect(void) {
 	switch (getUserChoice()) {
 	case HOST_ROOM:
-		std::cout << "Waiting for a request..." << std::endl << std::flush;
-		connectWithClient();
+		hostRoom();
 		break;
 	case JOIN_ROOM:
-		connectWithServer();
+		joinRoom();
 		break;
 	}
-	system("cls");
 }
 
-void App::connectWithClient(void) {
-	if (_server.createSocket(DEFAULT_SERVER_PORT) != 0) { 
-		throw std::runtime_error("Failed to initialise server socket"); 
+void App::hostRoom(void) {
+	Host* tmpUser = new Host(DEFAULT_SERVER_PORT);
+	if (tmpUser->createSocket() != 0) {
+		throw std::runtime_error("Failed to initialise host socket"); 
 	}
-	_server.startListen();
-	while (_server.connect() != 0);
+	std::cout << "Waiting for a request..." << std::endl << std::flush;
+	tmpUser->startListen();
+	while (tmpUser->connect() != 0);
+	system("cls");
+	_user = tmpUser;
 }
 
-void App::connectWithServer(void) {
+void App::joinRoom(void) {
+	Client* tmpUser = nullptr;
 	std::string serverAddr;
 	do {
+		delete(tmpUser);
 		std::cout << "Input the host address You wish to connect with: " << std::flush;
 		std::cin >> serverAddr;
+		tmpUser = new Client(serverAddr.c_str(), DEFAULT_SERVER_PORT);
 		system("cls");
-	} while (_client.createSocket(serverAddr.c_str(), DEFAULT_SERVER_PORT) != 0);
+	} while (tmpUser->createSocket() != 0);
+	_user = tmpUser;
 }
 
 void App::chatRoom(void) {
@@ -86,54 +87,17 @@ void App::printMessages(void) {
 }
 
 void App::receiveMessages(void) {
-	switch (_userType) {
-	case HOST:
-		receiveAsHost();
-		break;
-	case CLIENT:
-		receiveAsClient();
-		break;
-	}
-}
-
-void App::receiveAsHost(void) {
 	while (true) {
-		std::string* message = new std::string(_server.receiveMsg());
-		_buffer.addMsg(message);
-	}
-}
-
-void App::receiveAsClient(void) {
-	while (true) {
-		std::string* message = new std::string(_client.receiveMsg());
+		std::string* message = new std::string(_user->receiveMsg());
 		_buffer.addMsg(message);
 	}
 }
 
 void App::sendMessages(void) {
-	switch (_userType) {
-	case HOST:
-		sendAsHost();
-		break;
-	case CLIENT:
-		sendAsClient();
-		break;
-	}
-}
-
-void App::sendAsHost(void) {
 	while (true) {
 		std::string* message = new std::string(getMessage());
 		_buffer.addMsg(message);
-		_server.sendMsg(message->c_str());
-	}
-}
-
-void App::sendAsClient(void) {
-	while (true) {
-		std::string* message = new std::string(getMessage());
-		_buffer.addMsg(message);
-		_client.sendMsg(message->c_str());
+		_user->sendMsg(message->c_str());
 	}
 }
 
@@ -154,9 +118,7 @@ int App::getUserChoice(void) {
 		system("cls");
 	} while (choice != "host" && choice != "join");
 	if (choice == "host") {
-		_userType = HOST;
 		return HOST_ROOM;
 	}
-	_userType = CLIENT;
 	return JOIN_ROOM;
 }
