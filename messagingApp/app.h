@@ -2,12 +2,10 @@
 #define APP_H
 
 #include <iostream>
-#include <future>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 
 #include "client.h"
-#include "server.h"
 #include "msgBuffer.h"
 
 #pragma comment(lib,"WS2_32")
@@ -17,32 +15,28 @@
 class App {
 public:
 	App(void) {};
-	~App(void) { WSACleanup(); }
+	~App(void) { 
+		delete _user;
+		WSACleanup(); 
+	}
 	void run(void);
 
 private:
-	void setupWsa(void);
 	void welcomeMessage(void);
 	void connect(void);
-	void connectWithClient(void);
-	void connectWithServer(void);
+	void hostRoom(void);
+	void joinRoom(void);
 	void chatRoom(void);
 	void printMessages(void);
 	void receiveMessages(void);
-	void receiveAsHost(void);
-	void receiveAsClient(void);
 	void sendMessages(void);
-	void sendAsHost(void);
-	void sendAsClient(void);
 
 	std::string getMessage(void);
 
 	int getUserChoice(void);
 
-	Server _server;
-	Client _client;
+	User* _user = nullptr;
 	MsgBuffer _buffer;
-	int _userType;
 };
 
 #endif

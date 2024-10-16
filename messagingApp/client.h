@@ -5,25 +5,18 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 
+#include "user.h"
+
 #pragma comment(lib,"WS2_32")
 
-class Client {
+class Client : public User {
 public:
-	Client(void);
-	~Client(void) { closesocket(_socket); }
-	int createSocket(PCSTR serverAddr, PCSTR serverPort);
-	int sendMsg(const char* msg);
-
-	std::string receiveMsg(void);
-
-	SOCKET getSocket(void) { return _socket; }
+	Client(PCSTR hostAddr, PCSTR hostPort) : User(), _hostAddr(hostAddr), _hostPort(hostPort) {}
+	int createSocket(void);
 
 private:
-	PCSTR _serverAddr;
-	PCSTR _serverPort;
-	SOCKET _socket;
-	const int _bufLen;
-	char* _recvBuf = nullptr;
+	PCSTR _hostAddr;
+	PCSTR _hostPort;
 };
 
 #endif
