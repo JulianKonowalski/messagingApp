@@ -7,6 +7,7 @@
 
 #include "client.h"
 #include "msgBuffer.h"
+#include "gui.h"
 
 #pragma comment(lib,"WS2_32")
 
@@ -31,12 +32,13 @@ private:
 	void receiveMessages(void);
 	void sendMessages(void);
 
-	std::string getMessage(void);
+	std::string getUserMessage(void);
 
 	int getUserChoice(void);
 
 	User* _user = nullptr;
 	MsgBuffer _buffer;
+	GUI gui;
 };
 
 #endif
