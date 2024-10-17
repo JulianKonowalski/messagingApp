@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="app.cpp" />
     <ClCompile Include="client.cpp" />
+    <ClCompile Include="gui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="msgBuffer.cpp" />
     <ClCompile Include="host.cpp" />
@@ -137,6 +138,7 @@
   <ItemGroup>
     <ClInclude Include="app.h" />
     <ClInclude Include="client.h" />
+    <ClInclude Include="gui.h" />
     <ClInclude Include="msgBuffer.h" />
     <ClInclude Include="host.h" />
     <ClInclude Include="user.h" />

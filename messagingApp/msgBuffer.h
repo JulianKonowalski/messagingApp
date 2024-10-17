@@ -5,7 +5,7 @@
 #include <string>
 #include <mutex>
 
-#define MAX_MESSAGES 3
+#define MAX_MESSAGES 5
 
 class MsgBuffer {
 public:
