@@ -4,6 +4,8 @@
 #include <iostream>
 #include <list>
 
+#include "msgBuffer.h"
+
 class GUI {
 public:
 	GUI(void) {}
@@ -12,7 +14,7 @@ public:
 	void clear(void) { system("cls"); }
 	void jump(int x, int y);
 	void printLine(const std::string message, int ending = 1);
-	void printMessages(const std::list<std::string*>* messages);
+	void printMessages(const std::list<Message*>* messages);
 
 };
 

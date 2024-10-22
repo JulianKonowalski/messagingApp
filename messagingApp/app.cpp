@@ -83,18 +83,19 @@ void App::printMessages(void) {
 		if (!_buffer.isActive()) { break; }
 		gui.clear();
 		gui.printMessages(_buffer.getMessages());
+		_buffer.setChanged(false);
 	}
 }
 
 void App::receiveMessages(void) {
 	while (true) {
-		std::string* message = new std::string(_user->receiveMsg());
-		if (*message == SHUTDOWN_REQUEST_FLAG) {
+		Message* message = new Message("Other", _user->receiveMsg());
+		if (message->_message == SHUTDOWN_REQUEST_FLAG) {
 			gui.clear();
 			gui.printLine("Other user left the chat room");
 			gui.printLine("Type anything to leave: ", 0);
 			break; 
-		} else if (*message == SHUTDOWN_CONFIRMATION_FLAG) {
+		} else if (message->_message == SHUTDOWN_CONFIRMATION_FLAG) {
 			break;
 		}
 		_buffer.addMsg(message);
@@ -105,8 +106,8 @@ void App::receiveMessages(void) {
 
 void App::sendMessages(void) {
 	while (true) {
-		std::string* message = new std::string(getUserMessage());
-		if (*message == QUIT_MSG) {
+		Message* message = new Message("You", getUserMessage());
+		if (message->_message == QUIT_MSG) {
 			gui.clear();
 			gui.printLine("You left the chat room");
 			_user->shutdown();
@@ -115,7 +116,7 @@ void App::sendMessages(void) {
 			break;
 		}
 		_buffer.addMsg(message);
-		_user->sendMsg(message->c_str());
+		_user->sendMsg(message->_message.c_str());
 	}
 }
 

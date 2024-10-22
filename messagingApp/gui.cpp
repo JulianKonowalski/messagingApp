@@ -20,8 +20,8 @@ void GUI::printLine(std::string message, int ending) {
 	}
 }
 
-void GUI::printMessages(const std::list<std::string*>* messages) {
+void GUI::printMessages(const std::list<Message*>* messages) {
 	for (auto const& message : *messages) {
-		printLine(*message);
+		std::cout << *message << std::endl << std::flush;
 	}
 }
