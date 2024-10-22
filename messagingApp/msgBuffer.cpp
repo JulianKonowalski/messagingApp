@@ -20,6 +20,12 @@ void MsgBuffer::addMsg(std::string* message) {
 	_notification.notify_all();
 	return;
 }
+const std::list<std::string*>* MsgBuffer::getMessages(void) {
+	_mutex.lock();
+	_changed = true;
+	_mutex.unlock();
+	return &_messages;
+}
 
 void MsgBuffer::shutdown(void) {
 	_mutex.lock();

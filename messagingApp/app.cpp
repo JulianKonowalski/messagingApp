@@ -80,12 +80,9 @@ void App::printMessages(void) {
 	std::condition_variable* notification = _buffer.getCv();
 	while (true) {
 		notification->wait(lock, [this] { return _buffer.isChanged(); });
-		if (!_buffer.isActive()) {
-			break;
-		}
+		if (!_buffer.isActive()) { break; }
 		gui.clear();
 		gui.printMessages(_buffer.getMessages());
-		_buffer.setChanged(false);
 	}
 }
 
@@ -95,7 +92,7 @@ void App::receiveMessages(void) {
 		if (*message == SHUTDOWN_REQUEST_FLAG) {
 			gui.clear();
 			gui.printLine("Other user left the chat room");
-			gui.printLine("Type anything to leave");
+			gui.printLine("Type anything to leave: ", 0);
 			break; 
 		} else if (*message == SHUTDOWN_CONFIRMATION_FLAG) {
 			break;
