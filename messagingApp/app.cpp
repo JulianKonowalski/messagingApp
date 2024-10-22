@@ -7,7 +7,8 @@
 #include "host.h"
 #include "user.h"
 
-#define DEFAULT_SERVER_PORT "8080"
+const char* DEFAULT_SERVER_PORT = "8080";
+const std::string QUIT_MSG("\\q");
 
 enum userAction {HOST_ROOM, JOIN_ROOM};
 
@@ -21,6 +22,8 @@ void App::run(void) {
 		std::cout << error.what() << std::endl << std::flush;
 		exit(1);
 	}
+	delete(_user);
+	WSACleanup();
 }
 
 void App::welcomeMessage(void) {
@@ -76,7 +79,8 @@ void App::printMessages(void) {
 	std::unique_lock<std::mutex> lock(*_buffer.getMutex());
 	std::condition_variable* notification = _buffer.getCv();
 	while (true) {
-		notification->wait(lock, [this] { return _buffer.changed(); });
+		notification->wait(lock, [this] { return _buffer.isChanged(); });
+		if (!_buffer.isActive()) { break; }
 		gui.clear();
 		gui.printMessages(_buffer.getMessages());
 		_buffer.setChanged(false);
@@ -85,16 +89,34 @@ void App::printMessages(void) {
 
 void App::receiveMessages(void) {
 	while (true) {
-		std::string* message = new std::string(_user->receiveMsg());
+		Message* message = new Message("Other", _user->receiveMsg());
+		if (message->_message == SHUTDOWN_REQUEST_FLAG) {
+			gui.clear();
+			gui.printLine("Other user left the chat room");
+			gui.printLine("Type anything to leave: ", 0);
+			break; 
+		} else if (message->_message == SHUTDOWN_CONFIRMATION_FLAG) {
+			break;
+		}
 		_buffer.addMsg(message);
 	}
+	_buffer.shutdown();
+	_user->shutdown();
 }
 
 void App::sendMessages(void) {
 	while (true) {
-		std::string* message = new std::string(getUserMessage());
+		Message* message = new Message("You", getUserMessage());
+		if (message->_message == QUIT_MSG) {
+			gui.clear();
+			gui.printLine("You left the chat room");
+			_user->shutdown();
+			break;
+		} else if (!_user->isActive()) {
+			break;
+		}
 		_buffer.addMsg(message);
-		_user->sendMsg(message->c_str());
+		_user->sendMsg(message->_message.c_str());
 	}
 }
 

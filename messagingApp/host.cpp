@@ -56,5 +56,6 @@ int Host::connect (void) {
 		std::cout << "Error code: " << WSAGetLastError() << "\n" << std::endl;
 		return -1;
 	}
+	_active = true;
 	return 0;
 }

@@ -7,16 +7,26 @@ MsgBuffer::~MsgBuffer(void) {
 	}
 }
 
-void MsgBuffer::addMsg(std::string* message) {
+void MsgBuffer::addMsg(Message* message) {
 	_mutex.lock();
 	if (_messages.size() >= MAX_MESSAGES) {
-		std::string* tmp = _messages.front();
+		delete _messages.front();
 		_messages.pop_front();
-		delete tmp;
 	}
 	_messages.push_back(message);
-	setChanged(true);
+	_changed = true;
 	_mutex.unlock();
 	_notification.notify_all();
 	return;
+}
+const std::list<Message*>* MsgBuffer::getMessages(void) {
+	return &_messages;
+}
+
+void MsgBuffer::shutdown(void) {
+	_mutex.lock();
+	_active = false;
+	_changed = true;
+	_mutex.unlock();
+	_notification.notify_all();
 }

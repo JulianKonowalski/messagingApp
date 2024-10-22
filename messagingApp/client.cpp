@@ -38,6 +38,7 @@ int Client::createSocket(void) {
 	}
 
 	freeaddrinfo(addrResult);
+	_active = true;
 
 	return 0;
 }
