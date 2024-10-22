@@ -1,10 +1,8 @@
 #include "user.h"
-
-#define DEFAULT_BUF_LEN 128
-
 #include <string>
 
-User::User(void) : _socket(INVALID_SOCKET), _bufLen(DEFAULT_BUF_LEN) {
+
+User::User(void) : _socket(INVALID_SOCKET), _bufLen(DEFAULT_BUF_LEN), _active(false) {
 	_recvBuf = new char[_bufLen];
 }
 
@@ -29,7 +27,17 @@ std::string User::receiveMsg(void) {
 		throw std::runtime_error(errorMsg);
 	}
 
-	return std::string(_recvBuf);
+	std::string msg(_recvBuf);
+	if (msg == SHUTDOWN_REQUEST_FLAG) {
+		_active = false;
+		return std::string(SHUTDOWN_REQUEST_FLAG);
+	}
+	else if (msg == SHUTDOWN_CONFIRMATION_FLAG) {
+		_active = false;
+		return std::string(SHUTDOWN_CONFIRMATION_FLAG);
+	}
+
+	return msg;
 }
 
 void User::sendMsg(const char* msg) {
@@ -53,4 +61,13 @@ void User::sendMsg(const char* msg) {
 		throw std::runtime_error(errorMsg);
 	}
 
+}
+
+void User::shutdown(void) {
+	if (_active) {
+		_active = false;
+		sendMsg(SHUTDOWN_REQUEST_FLAG);
+		return;
+	}
+	sendMsg(SHUTDOWN_CONFIRMATION_FLAG);
 }

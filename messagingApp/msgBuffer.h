@@ -13,14 +13,17 @@ public:
 	void addMsg(std::string* message);
 	std::mutex* getMutex(void) { return &_mutex; }
 	std::condition_variable* getCv(void) { return &_notification; }
-	bool changed(void) { return _changed; }
+	bool isChanged(void) { return _changed; }
+	bool isActive(void) { return _active; }
 	void setChanged(bool changed) { _changed = changed; }
 	const std::list<std::string*>* getMessages(void) { return &_messages; }
+	void shutdown(void);
 
 private:
 	std::mutex _mutex;
 	std::condition_variable _notification;
 	bool _changed = false;
+	bool _active = true;
 	std::list<std::string*> _messages;
 };
 

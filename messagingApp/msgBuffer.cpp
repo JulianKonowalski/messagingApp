@@ -15,8 +15,16 @@ void MsgBuffer::addMsg(std::string* message) {
 		delete tmp;
 	}
 	_messages.push_back(message);
-	setChanged(true);
+	_changed = true;
 	_mutex.unlock();
 	_notification.notify_all();
 	return;
+}
+
+void MsgBuffer::shutdown(void) {
+	_mutex.lock();
+	_active = false;
+	_changed = true;
+	_mutex.unlock();
+	_notification.notify_all();
 }
